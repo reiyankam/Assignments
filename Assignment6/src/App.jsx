@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Header from "./Components/Header";
-import ProtectedRoute from "./Components/ProtectedRoute";
 
-import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Tasks from "./pages/Tasks";
 import TaskDetails from "./pages/TaskDetails";
@@ -59,17 +57,11 @@ function App() {
 
   const [tasks, setTasks] = useState(() => {
     const savedTasks = localStorage.getItem("taskManagerTasks");
-
-    return savedTasks
-      ? JSON.parse(savedTasks)
-      : defaultTasks;
+    return savedTasks ? JSON.parse(savedTasks) : defaultTasks;
   });
 
   useEffect(() => {
-    localStorage.setItem(
-      "taskManagerTasks",
-      JSON.stringify(tasks)
-    );
+    localStorage.setItem("taskManagerTasks", JSON.stringify(tasks));
   }, [tasks]);
 
   const addTask = (newTask) => {
@@ -79,27 +71,20 @@ function App() {
       raisedDate: new Date().toISOString(),
     };
 
-    setTasks((currentTasks) => [
-      ...currentTasks,
-      taskWithId,
-    ]);
+    setTasks((currentTasks) => [...currentTasks, taskWithId]);
   };
 
   const updateTask = (updatedTask) => {
     setTasks((currentTasks) =>
       currentTasks.map((task) =>
-        task.id === updatedTask.id
-          ? updatedTask
-          : task
+        task.id === updatedTask.id ? updatedTask : task
       )
     );
   };
 
   const deleteTask = (taskId) => {
     setTasks((currentTasks) =>
-      currentTasks.filter(
-        (task) => task.id !== taskId
-      )
+      currentTasks.filter((task) => task.id !== taskId)
     );
   };
 
@@ -108,64 +93,43 @@ function App() {
       <Header />
 
       <Routes>
-
-        <Route
-          path="/login"
-          element={<Login />}
-        />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
         <Route
           path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard tasks={tasks} />
-            </ProtectedRoute>
-          }
+          element={<Dashboard tasks={tasks} />}
         />
 
         <Route
           path="/tasks"
           element={
-            <ProtectedRoute>
-              <Tasks
-                tasks={tasks}
-                deleteTask={deleteTask}
-              />
-            </ProtectedRoute>
+            <Tasks
+              tasks={tasks}
+              deleteTask={deleteTask}
+            />
           }
         />
 
         <Route
           path="/tasks/:id"
           element={
-            <ProtectedRoute>
-              <TaskDetails
-                tasks={tasks}
-                updateTask={updateTask}
-                deleteTask={deleteTask}
-              />
-            </ProtectedRoute>
+            <TaskDetails
+              tasks={tasks}
+              updateTask={updateTask}
+              deleteTask={deleteTask}
+            />
           }
         />
 
         <Route
           path="/add-task"
-          element={
-            <ProtectedRoute>
-              <AddTask addTask={addTask} />
-            </ProtectedRoute>
-          }
+          element={<AddTask addTask={addTask} />}
         />
 
         <Route
           path="/completed"
-          element={
-            <ProtectedRoute>
-              <CompletedTasks tasks={tasks} />
-            </ProtectedRoute>
-          }
+          element={<CompletedTasks tasks={tasks} />}
         />
-
       </Routes>
     </BrowserRouter>
   );
